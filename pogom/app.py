@@ -28,6 +28,7 @@ class Pogom(Flask):
         self.route("/loc", methods=['GET'])(self.loc)
         self.route("/next_loc", methods=['POST'])(self.next_loc)
         self.route("/mobile", methods=['GET'])(self.list_pokemon)
+        self.route("/pokevision", methods=['GET'])(self.like_pokevision)
 
     def fullmap(self):
         args = get_args()
@@ -42,6 +43,24 @@ class Pogom(Flask):
                                lang=config['LOCALE'],
                                is_fixed=display
                                )
+
+    def like_pokevision(self):
+        pokemon_list = []
+
+        lat = request.args.get('lat', config['ORIGINAL_LATITUDE'], type=float)
+        lon = request.args.get('lon', config['ORIGINAL_LONGITUDE'], type=float)
+
+        for pokemon in Pokemon.get_active(None, None, None, None):
+            entry = {
+                'pokemonId': pokemon['pokemon_id'],
+                'name': pokemon['pokemon_name'],
+                'disappear_time': pokemon['disappear_time'],
+                'latitude': pokemon['latitude'],
+                'longitude': pokemon['longitude']
+            }
+            pokemon_list.append(entry)
+
+        return jsonify({'pokemon': pokemon_list})
 
     def raw_data(self):
         d = {}
