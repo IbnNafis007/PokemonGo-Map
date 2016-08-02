@@ -58,7 +58,20 @@ class Pogom(Flask):
         lat = request.args.get('lat', config['ORIGINAL_LATITUDE'], type=float)
         lon = request.args.get('lon', config['ORIGINAL_LONGITUDE'], type=float)
 
-        for step, step_location in enumerate(generate_location_steps([lat, lon], 120), 1):
+        position = [lat, lon]
+
+        if api._auth_provider and api._auth_provider._ticket_expire:
+            remaining_time = api._auth_provider._ticket_expire/1000 - time.time()
+
+            if remaining_time > 60:
+                log.info("Skipping Pokemon Go login process since already logged in \
+                    for another {:.2f} seconds".format(remaining_time))
+            else:
+                login(args, position)
+        else:
+            login(args, position)
+
+        for step, step_location in enumerate(generate_location_steps(position, 120), 1):
             log.debug('in {}, {} (step: {})'.format(step_location[0], step_location[1], step))
             map_data = send_map_request(api, step_location)
             parse_map(map_data, 0, step, step_location)
