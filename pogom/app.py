@@ -58,7 +58,7 @@ class Pogom(Flask):
         lat = request.args.get('lat', config['ORIGINAL_LATITUDE'], type=float)
         lon = request.args.get('lon', config['ORIGINAL_LONGITUDE'], type=float)
 
-        position = [lat, lon]
+        position = [lat, lon, 0.0]
 
         args = {
             'auth_service': config['AUTH_SERVICE'],
