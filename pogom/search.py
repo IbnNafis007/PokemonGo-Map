@@ -182,10 +182,10 @@ def search_loop(args):
             # Update the location if needed
             if 'NEXT_LOCATION' in config:
                 log.info('New location set')
-                config.pop('NEXT_LOCATION', None)
-
                 args.lat = config['NEXT_LOCATION']['lat']
                 args.lon = config['NEXT_LOCATION']['lat']
+                config.pop('NEXT_LOCATION', None)
+
                 search(args, i)
                 log.info("Search loop {} complete.".format(i))
                 i += 1
