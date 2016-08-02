@@ -142,12 +142,6 @@ def search_thread(q):
         # Get the next item off the queue (this blocks till there is something)
         i, step_location, step, lock = q.get()
 
-        # If a new location has been set, just mark done and continue
-        if 'NEXT_LOCATION' in config:
-            log.debug("{}: new location waiting, flushing queue".format(threadname))
-            q.task_done()
-            continue
-
         log.debug("{}: processing itteration {} step {}".format(threadname, i, step))
         response_dict = {}
         failed_consecutive = 0
