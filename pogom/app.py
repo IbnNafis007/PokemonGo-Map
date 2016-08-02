@@ -53,6 +53,7 @@ class Pogom(Flask):
 
         lat = request.args.get('lat', config['ORIGINAL_LATITUDE'], type=float)
         lon = request.args.get('lon', config['ORIGINAL_LONGITUDE'], type=float)
+        config['NEXT_LOCATION'] = {'lat': lat, 'lon': lon}
 
         swLat = lat - (latitudePerKm * km);
         swLng = lon - (longitudePerKm * km);
