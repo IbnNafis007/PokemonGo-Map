@@ -66,7 +66,10 @@ class Pogom(Flask):
         for step, step_location in enumerate(generate_location_steps(position, 120), 1):
             log.debug('in {}, {} (step: {})'.format(step_location[0], step_location[1], step))
             map_data = send_map_request(api, step_location)
-            parse_map(map_data, 0, step, step_location)
+            if map_data:
+                parse_map(map_data, 0, step, step_location)
+            else:
+                log.debug('cannot fetch map data')
 
         swLat = lat - (latitudePerKm * km);
         swLng = lon - (longitudePerKm * km);
