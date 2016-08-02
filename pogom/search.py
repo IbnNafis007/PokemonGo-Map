@@ -182,9 +182,9 @@ def search_loop(args):
             # Update the location if needed
             if 'NEXT_LOCATION' in config:
                 log.info('New location set')
+                next_location = config['NEXT_LOCATION'].pop()
                 lat = config['NEXT_LOCATION']['lat']
                 lon = config['NEXT_LOCATION']['lon']
-                config.pop('NEXT_LOCATION', None)
 
                 search(args, i, lat, lon)
                 log.info("Search loop {} complete.".format(i))
