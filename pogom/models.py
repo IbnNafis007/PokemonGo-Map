@@ -66,6 +66,35 @@ class Pokemon(BaseModel):
     disappear_time = DateTimeField()
 
     @classmethod
+    def get_old_active(cls, swLat, swLng, neLat, neLng):
+        old_datetime = datetime.utcnow() - timedelta(minutes=15)
+
+        if swLat is None or swLng is None or neLat is None or neLng is None:
+            query = (Pokemon
+                     .select()
+                     .where(Pokemon.disappear_time > old_datetime)
+                     .dicts())
+        else:
+            query = (Pokemon
+                     .select()
+                     .where((Pokemon.disappear_time > old_datetime) &
+                            (Pokemon.latitude >= swLat) &
+                            (Pokemon.longitude >= swLng) &
+                            (Pokemon.latitude <= neLat) &
+                            (Pokemon.longitude <= neLng))
+                     .dicts())
+
+        pokemons = []
+        for p in query:
+            p['pokemon_name'] = get_pokemon_name(p['pokemon_id'])
+            if args.china:
+                p['latitude'], p['longitude'] = \
+                    transform_from_wgs_to_gcj(p['latitude'], p['longitude'])
+            pokemons.append(p)
+
+        return pokemons
+
+    @classmethod
     def get_active(cls, swLat, swLng, neLat, neLng):
         if swLat is None or swLng is None or neLat is None or neLng is None:
             query = (Pokemon

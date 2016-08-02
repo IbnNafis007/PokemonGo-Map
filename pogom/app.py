@@ -26,7 +26,7 @@ class Pogom(Flask):
         self.route("/", methods=['GET'])(self.fullmap)
         self.route("/raw_data", methods=['GET'])(self.raw_data)
         self.route("/loc", methods=['GET'])(self.loc)
-        self.route("/next_loc", methods=['POST'])(self.next_loc)
+        self.route("/next_loc", methods=['POST', 'GET'])(self.next_loc)
         self.route("/mobile", methods=['GET'])(self.list_pokemon)
         self.route("/pokevision", methods=['GET'])(self.like_pokevision)
 
@@ -59,7 +59,7 @@ class Pogom(Flask):
         neLat = lat + (latitudePerKm * km);
         neLng = lon + (longitudePerKm * km);
 
-        for pokemon in Pokemon.get_active(swLat, swLng, neLat, neLng):
+        for pokemon in Pokemon.get_old_active(swLat, swLng, neLat, neLng):
             entry = {
                 'pokemonId': pokemon['pokemon_id'],
                 'name': pokemon['pokemon_name'],
