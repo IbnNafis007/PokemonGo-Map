@@ -185,9 +185,16 @@ def search_loop(args):
     while True:
         log.info("Search loop {} starting".format(i))
         try:
-            search(args, i)
-            log.info("Search loop {} complete.".format(i))
-            i += 1
+            # Update the location if needed
+            if 'NEXT_LOCATION' in config:
+                log.info('New location set')
+                config['ORIGINAL_LATITUDE'] = config['NEXT_LOCATION']['lat']
+                config['ORIGINAL_LONGITUDE'] = config['NEXT_LOCATION']['lon']
+                config.pop('NEXT_LOCATION', None)
+
+                search(args, i)
+                log.info("Search loop {} complete.".format(i))
+                i += 1
         except Exception as e:
             log.error('Scanning error @ {0.__class__.__name__}: {0}'.format(e))
         finally:
@@ -195,19 +202,11 @@ def search_loop(args):
                 log.info('Waiting {:g} seconds before beginning new scan.'.format(args.thread_delay))
                 time.sleep(args.thread_delay)
 
-
 #
 # Overseer main logic
 #
 def search(args, i):
     num_steps = args.step_limit
-
-    # Update the location if needed
-    if 'NEXT_LOCATION' in config:
-        log.info('New location set')
-        config['ORIGINAL_LATITUDE'] = config['NEXT_LOCATION']['lat']
-        config['ORIGINAL_LONGITUDE'] = config['NEXT_LOCATION']['lon']
-        config.pop('NEXT_LOCATION', None)
 
     position = (config['ORIGINAL_LATITUDE'], config['ORIGINAL_LONGITUDE'], 0)
 
