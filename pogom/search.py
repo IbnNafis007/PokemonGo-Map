@@ -182,10 +182,10 @@ def search_loop(args):
             # Update the location if needed
             if 'NEXT_LOCATION' in config:
                 log.info('New location set')
-                config['ORIGINAL_LATITUDE'] = config['NEXT_LOCATION']['lat']
-                config['ORIGINAL_LONGITUDE'] = config['NEXT_LOCATION']['lon']
                 config.pop('NEXT_LOCATION', None)
 
+                args.lat = config['NEXT_LOCATION']['lat']
+                args.lon = config['NEXT_LOCATION']['lat']
                 search(args, i)
                 log.info("Search loop {} complete.".format(i))
                 i += 1
@@ -202,7 +202,7 @@ def search_loop(args):
 def search(args, i):
     num_steps = args.step_limit
 
-    position = (config['ORIGINAL_LATITUDE'], config['ORIGINAL_LONGITUDE'], 0)
+    position = (args.get('lat', config['ORIGINAL_LATITUDE']), args.get('lon', config['ORIGINAL_LONGITUDE']), 0)
 
     if api._auth_provider and api._auth_provider._ticket_expire:
         remaining_time = api._auth_provider._ticket_expire/1000 - time.time()
@@ -218,7 +218,7 @@ def search(args, i):
     lock = Lock()
 
     for step, step_location in enumerate(generate_location_steps(position, num_steps), 1):
-        log.debug("Queue search itteration {}, step {}".format(i, step))
+        log.debug("Queue search itteration {}, step {}, position: {}, {}".format(i, step, position[0], position[1]))
         search_args = (i, step_location, step, lock)
         search_queue.put(search_args)
 
