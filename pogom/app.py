@@ -14,7 +14,7 @@ from pogom.utils import get_args
 from . import config
 from .models import Pokemon, Gym, Pokestop, ScannedLocation, parse_map
 
-from pogom.search import send_map_request, generate_location_steps, login
+from pogom.search import send_map_request, generate_location_steps
 from pgoapi import PGoApi
 
 log = logging.getLogger(__name__)
@@ -60,23 +60,8 @@ class Pogom(Flask):
 
         position = [lat, lon, 0.0]
 
-        args = {
-            'auth_service': config['AUTH_SERVICE'],
-            'username': config['AUTH_USERNAME'],
-            'password': config['AUTH_PASSWORD'],
-            'login_delay': config['LOGIN_DELAY'],
-        }
-
-        if api._auth_provider and api._auth_provider._ticket_expire:
-            remaining_time = api._auth_provider._ticket_expire/1000 - time.time()
-
-            if remaining_time > 60:
-                log.info("Skipping Pokemon Go login process since already logged in \
-                    for another {:.2f} seconds".format(remaining_time))
-            else:
-                login(args, position)
-        else:
-            login(args, position)
+        api.set_position(*position)
+        api.login(config['AUTH_SERVICE'], config['AUTH_USERNAME'], config['AUTH_PASSWORD']):
 
         for step, step_location in enumerate(generate_location_steps(position, 120), 1):
             log.debug('in {}, {} (step: {})'.format(step_location[0], step_location[1], step))
