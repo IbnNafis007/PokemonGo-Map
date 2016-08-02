@@ -3,6 +3,7 @@
 
 import calendar
 import logging
+import time
 
 from flask import Flask, jsonify, render_template, request
 from flask.json import JSONEncoder
@@ -59,37 +60,42 @@ class Pogom(Flask):
         api.set_position(*position)
         api.login(config['AUTH_SERVICE'], config['AUTH_USERNAME'], config['AUTH_PASSWORD'])
 
-        for step, step_location in enumerate(generate_location_steps(position, 8), 1):
+        for step, step_location in enumerate(generate_location_steps(position, 5), 1):
             log.debug('in {}, {} (step: {})'.format(step_location[0], step_location[1], step))
-            map_dict = send_map_request(api, step_location)
-            if map_dict:
-                log.debug('try to parse data')
-                try:
-                    cells = map_dict['responses']['GET_MAP_OBJECTS']['map_cells']
-                    for cell in cells:
-                        if config['parse_pokemon']:
-                            for p in cell.get('wild_pokemons', []):
-                                disappear_time = datetime.utcfromtimestamp(
-                                    (p['last_modified_timestamp_ms'] +
-                                     p['time_till_hidden_ms']) / 1000.0)
-                                log.debug(p['pokemon_data'])
-                                pokemon_list.append({
-                                    'pokemonId': p['pokemon_data']['pokemon_id'],
-                                    'disappear_time': disappear_time,
-                                    'latitude': p['latitude'],
-                                    'longitude': p['longitude'],
-                                });
+            parsed = False
+            while not parsed:
+                map_dict = send_map_request(api, step_location)
+                if map_dict:
+                    log.debug('try to parse data')
+                    try:
+                        cells = map_dict['responses']['GET_MAP_OBJECTS']['map_cells']
+                        for cell in cells:
+                            if config['parse_pokemon']:
+                                for p in cell.get('wild_pokemons', []):
+                                    disappear_time = datetime.utcfromtimestamp(
+                                        (p['last_modified_timestamp_ms'] +
+                                         p['time_till_hidden_ms']) / 1000.0)
+                                    log.debug(p['pokemon_data'])
+                                    pokemon_list.append({
+                                        'pokemonId': p['pokemon_data']['pokemon_id'],
+                                        'disappear_time': disappear_time,
+                                        'latitude': p['latitude'],
+                                        'longitude': p['longitude'],
+                                    });
 
-                    bulk_upsert(ScannedLocation, [{
-                        'scanned_id': str(step_location[0])+','+str(step_location[1]),
-                        'latitude': step_location[0],
-                        'longitude': step_location[1],
-                        'last_modified': datetime.utcnow(),
-                    }])
-                except Exception as e:
-                    log.warning("Uncaught exception when parsing map " + str(e))
-            else:
-                log.debug('cannot fetch map data')
+                        bulk_upsert(ScannedLocation, {0: {
+                            'scanned_id': str(step_location[0])+','+str(step_location[1]),
+                            'latitude': step_location[0],
+                            'longitude': step_location[1],
+                            'last_modified': datetime.utcnow(),
+                        }})
+                        parsed = True
+                    except Exception as e:
+                        log.warning("Uncaught exception when parsing map " + str(e))
+                        time.sleep(1)
+                else:
+                    log.debug('cannot fetch map data')
+            time.sleep(0.5)
 
         return jsonify({'pokemon': pokemon_list})
 
