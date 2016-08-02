@@ -68,7 +68,10 @@ class Pogom(Flask):
             map_data = send_map_request(api, step_location)
             if map_data:
                 log.debug('try to parse data')
-                parse_map(map_data, 0, step, step_location)
+                try:
+                    parse_map(map_data, 0, step, step_location)
+                except Exception as e:
+                    log.warning("Uncaught exception when parsing map " + str(e))
             else:
                 log.debug('cannot fetch map data')
 
