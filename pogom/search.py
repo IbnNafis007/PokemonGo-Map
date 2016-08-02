@@ -180,7 +180,7 @@ def search_loop(args, location_queue):
         log.info("Search loop {} starting".format(i))
         try:
             # Update the location if needed
-            if not location_queue.empty()
+            if not location_queue.empty():
                 log.info('New location set')
                 next_location = location_queue.get()
                 lat = next_location['lat']
