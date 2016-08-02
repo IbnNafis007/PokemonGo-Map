@@ -180,7 +180,7 @@ def search_loop(args):
         log.info("Search loop {} starting".format(i))
         try:
             # Update the location if needed
-            if 'NEXT_LOCATION' in config && config['NEXT_LOCATION']:
+            if 'NEXT_LOCATION' in config and config['NEXT_LOCATION']:
                 log.info('New location set')
                 next_location = config['NEXT_LOCATION'].pop()
                 lat = config['NEXT_LOCATION']['lat']
