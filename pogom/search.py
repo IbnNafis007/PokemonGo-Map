@@ -182,11 +182,11 @@ def search_loop(args):
             # Update the location if needed
             if 'NEXT_LOCATION' in config:
                 log.info('New location set')
-                args.lat = config['NEXT_LOCATION']['lat']
-                args.lon = config['NEXT_LOCATION']['lat']
+                lat = config['NEXT_LOCATION']['lat']
+                lon = config['NEXT_LOCATION']['lat']
                 config.pop('NEXT_LOCATION', None)
 
-                search(args, i)
+                search(args, i, lat, lon)
                 log.info("Search loop {} complete.".format(i))
                 i += 1
         except Exception as e:
@@ -199,10 +199,16 @@ def search_loop(args):
 #
 # Overseer main logic
 #
-def search(args, i):
+def search(args, i, lat=None, lon=None):
     num_steps = args.step_limit
 
-    position = (args.get('lat', config['ORIGINAL_LATITUDE']), args.get('lon', config['ORIGINAL_LONGITUDE']), 0)
+    if not lat
+        lat = config['ORIGINAL_LATITUDE']
+
+    if not lon
+        lon = config['ORIGINAL_LONGITUDE']
+
+    position = (lat, lon, 0)
 
     if api._auth_provider and api._auth_provider._ticket_expire:
         remaining_time = api._auth_provider._ticket_expire/1000 - time.time()
