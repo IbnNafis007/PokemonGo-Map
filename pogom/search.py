@@ -174,17 +174,17 @@ def search_thread(q):
 #
 # Search Overseer
 #
-def search_loop(args):
+def search_loop(args, location_queue):
     i = 0
     while True:
         log.info("Search loop {} starting".format(i))
         try:
             # Update the location if needed
-            if 'NEXT_LOCATION' in config and config['NEXT_LOCATION']:
+            if not location_queue.empty()
                 log.info('New location set')
-                next_location = config['NEXT_LOCATION'].pop()
-                lat = config['NEXT_LOCATION']['lat']
-                lon = config['NEXT_LOCATION']['lon']
+                next_location = location_queue.get()
+                lat = next_location['lat']
+                lon = next_location['lon']
 
                 search(args, i, lat, lon)
                 log.info("Search loop {} complete.".format(i))

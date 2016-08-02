@@ -8,6 +8,7 @@ import time
 
 from threading import Thread
 from flask_cors import CORS
+from queue import Queue
 
 from pogom import config
 from pogom.app import Pogom
@@ -19,6 +20,7 @@ from pogom.pgoapi.utilities import get_pos_by_name
 
 logging.basicConfig(format='%(asctime)s [%(module)14s] [%(levelname)7s] %(message)s')
 log = logging.getLogger()
+location_queue = Queue()
 
 if __name__ == '__main__':
     args = get_args()
@@ -66,14 +68,13 @@ if __name__ == '__main__':
     config['ORIGINAL_LONGITUDE'] = position[1]
     config['LOCALE'] = args.locale
     config['CHINA'] = args.china
-    config['NEXT_LOCATION'] = []
 
     if not args.only_server:
         # Gather the pokemons!
         if not args.mock:
             log.debug('Starting a real search thread and {} search runner thread(s)'.format(args.num_threads))
             create_search_threads(args.num_threads)
-            search_thread = Thread(target=search_loop, args=(args,))
+            search_thread = Thread(target=search_loop, args=(args, location_queue,))
         else:
             log.debug('Starting a fake search thread')
             insert_mock_data()
@@ -83,7 +84,7 @@ if __name__ == '__main__':
         search_thread.name = 'search_thread'
         search_thread.start()
 
-    app = Pogom(__name__)
+    app = Pogom(__name__, location_queue)
 
     if args.cors:
         CORS(app);

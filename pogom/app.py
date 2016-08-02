@@ -19,9 +19,10 @@ compress = Compress()
 
 
 class Pogom(Flask):
-    def __init__(self, import_name, **kwargs):
+    def __init__(self, import_name, location_queue, **kwargs):
         super(Pogom, self).__init__(import_name, **kwargs)
         compress.init_app(self)
+        self.location_queue = location_queue
         self.json_encoder = CustomJSONEncoder
         self.route("/", methods=['GET'])(self.fullmap)
         self.route("/raw_data", methods=['GET'])(self.raw_data)
@@ -121,7 +122,7 @@ class Pogom(Flask):
             log.warning('Invalid next location: %s,%s' % (lat, lon))
             return 'bad parameters', 400
         else:
-            config['NEXT_LOCATION'].push({'lat': lat, 'lon': lon})
+            location_queue.put({'lat': lat, 'lon': lon})
             log.info('Changing next location: %s,%s' % (lat, lon))
             return 'ok'
 
