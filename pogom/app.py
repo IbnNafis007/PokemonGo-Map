@@ -12,11 +12,15 @@ from s2sphere import *
 from pogom.utils import get_args
 
 from . import config
-from .models import Pokemon, Gym, Pokestop, ScannedLocation
+from .models import Pokemon, Gym, Pokestop, ScannedLocation, parse_map
+
+from pogom.search import send_map_request, generate_location_steps
+from pgoapi import PGoApi
 
 log = logging.getLogger(__name__)
 compress = Compress()
 
+api = PGoApi()
 
 class Pogom(Flask):
     def __init__(self, import_name, **kwargs):
@@ -53,7 +57,11 @@ class Pogom(Flask):
 
         lat = request.args.get('lat', config['ORIGINAL_LATITUDE'], type=float)
         lon = request.args.get('lon', config['ORIGINAL_LONGITUDE'], type=float)
-        config['NEXT_LOCATION'] = {'lat': lat, 'lon': lon}
+
+        for step, step_location in enumerate(generate_location_steps([lat, lon], 120), 1):
+            log.debug('in {}, {} (step: {})', step_location[0], step_location[1], step)
+            map_data = search.send_map_request(api, step_location)
+            parse_map(map_data, 0, step, step_location)
 
         swLat = lat - (latitudePerKm * km);
         swLng = lon - (longitudePerKm * km);
