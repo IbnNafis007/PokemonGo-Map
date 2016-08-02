@@ -181,14 +181,16 @@ def search_loop(args, location_queue):
         try:
             # Update the location if needed
             if not location_queue.empty():
-                log.info('New location set')
                 next_location = location_queue.get()
                 lat = next_location['lat']
                 lon = next_location['lon']
 
+                log.info('Begin to register new location: {}, {}'.format(lat, lon))
                 search(args, i, lat, lon)
                 log.info("Search loop {} complete.".format(i))
                 i += 1
+            else:
+                log.info('Wait until location queue')
         except Exception as e:
             log.error('Scanning error @ {0.__class__.__name__}: {0}'.format(e))
         finally:
