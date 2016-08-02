@@ -67,6 +67,7 @@ class Pogom(Flask):
             log.debug('in {}, {} (step: {})'.format(step_location[0], step_location[1], step))
             map_data = send_map_request(api, step_location)
             if map_data:
+                log.debug('try to parse data')
                 parse_map(map_data, 0, step, step_location)
             else:
                 log.debug('cannot fetch map data')
