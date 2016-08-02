@@ -183,7 +183,7 @@ def search_loop(args):
             if 'NEXT_LOCATION' in config:
                 log.info('New location set')
                 lat = config['NEXT_LOCATION']['lat']
-                lon = config['NEXT_LOCATION']['lat']
+                lon = config['NEXT_LOCATION']['lon']
                 config.pop('NEXT_LOCATION', None)
 
                 search(args, i, lat, lon)
