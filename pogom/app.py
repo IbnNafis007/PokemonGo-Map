@@ -60,7 +60,7 @@ class Pogom(Flask):
 
         for step, step_location in enumerate(generate_location_steps([lat, lon], 120), 1):
             log.debug('in {}, {} (step: {})', step_location[0], step_location[1], step)
-            map_data = search.send_map_request(api, step_location)
+            map_data = send_map_request(api, step_location)
             parse_map(map_data, 0, step, step_location)
 
         swLat = lat - (latitudePerKm * km);
