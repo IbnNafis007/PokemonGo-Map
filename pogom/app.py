@@ -12,7 +12,7 @@ from s2sphere import *
 from pogom.utils import get_args
 
 from . import config
-from .models import Pokemon, Gym, Pokestop, ScannedLocation, parse_map
+from .models import Pokemon, Gym, Pokestop, ScannedLocation, parse_map, bulk_upsert
 
 from pogom.search import send_map_request, generate_location_steps
 from pgoapi import PGoApi
@@ -51,10 +51,6 @@ class Pogom(Flask):
     def like_pokevision(self):
         pokemon_list = []
 
-        latitudePerKm = 0.0090133729745762;
-        longitudePerKm = 0.010966404715491394;
-        km = 1.4;
-
         lat = request.args.get('lat', config['ORIGINAL_LATITUDE'], type=float)
         lon = request.args.get('lon', config['ORIGINAL_LONGITUDE'], type=float)
 
@@ -83,6 +79,13 @@ class Pogom(Flask):
                                     'latitude': p['latitude'],
                                     'longitude': p['longitude'],
                                 });
+
+                    bulk_upsert(ScannedLocation, [{
+                        'scanned_id': str(step_location[0])+','+str(step_location[1]),
+                        'latitude': step_location[0],
+                        'longitude': step_location[1],
+                        'last_modified': datetime.utcnow(),
+                    }])
                 except Exception as e:
                     log.warning("Uncaught exception when parsing map " + str(e))
             else:
