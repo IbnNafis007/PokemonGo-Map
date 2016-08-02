@@ -61,7 +61,7 @@ class Pogom(Flask):
         position = [lat, lon, 0.0]
 
         api.set_position(*position)
-        api.login(config['AUTH_SERVICE'], config['AUTH_USERNAME'], config['AUTH_PASSWORD']):
+        api.login(config['AUTH_SERVICE'], config['AUTH_USERNAME'], config['AUTH_PASSWORD'])
 
         for step, step_location in enumerate(generate_location_steps(position, 120), 1):
             log.debug('in {}, {} (step: {})'.format(step_location[0], step_location[1], step))
