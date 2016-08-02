@@ -122,7 +122,7 @@ class Pogom(Flask):
             log.warning('Invalid next location: %s,%s' % (lat, lon))
             return 'bad parameters', 400
         else:
-            location_queue.put({'lat': lat, 'lon': lon})
+            self.location_queue.put({'lat': lat, 'lon': lon})
             log.info('Changing next location: %s,%s' % (lat, lon))
             return 'ok'
 
