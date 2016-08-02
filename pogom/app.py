@@ -14,7 +14,7 @@ from pogom.utils import get_args
 from . import config
 from .models import Pokemon, Gym, Pokestop, ScannedLocation, parse_map
 
-from pogom.search import send_map_request, generate_location_steps
+from pogom.search import send_map_request, generate_location_steps, login
 from pgoapi import PGoApi
 
 log = logging.getLogger(__name__)
