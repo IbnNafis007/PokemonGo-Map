@@ -63,32 +63,30 @@ class Pogom(Flask):
         api.set_position(*position)
         api.login(config['AUTH_SERVICE'], config['AUTH_USERNAME'], config['AUTH_PASSWORD'])
 
-        for step, step_location in enumerate(generate_location_steps(position, 120), 1):
+        for step, step_location in enumerate(generate_location_steps(position, 8), 1):
             log.debug('in {}, {} (step: {})'.format(step_location[0], step_location[1], step))
-            map_data = send_map_request(api, step_location)
-            if map_data:
+            map_dict = send_map_request(api, step_location)
+            if map_dict:
                 log.debug('try to parse data')
                 try:
-                    parse_map(map_data, 0, step, step_location)
+                    cells = map_dict['responses']['GET_MAP_OBJECTS']['map_cells']
+                    for cell in cells:
+                        if config['parse_pokemon']:
+                            for p in cell.get('wild_pokemons', []):
+                                disappear_time = datetime.utcfromtimestamp(
+                                    (p['last_modified_timestamp_ms'] +
+                                     p['time_till_hidden_ms']) / 1000.0)
+                                log.debug(p['pokemon_data'])
+                                pokemon_list.append({
+                                    'pokemonId': p['pokemon_data']['pokemon_id'],
+                                    'disappear_time': disappear_time,
+                                    'latitude': p['latitude'],
+                                    'longitude': p['longitude'],
+                                });
                 except Exception as e:
                     log.warning("Uncaught exception when parsing map " + str(e))
             else:
                 log.debug('cannot fetch map data')
-
-        swLat = lat - (latitudePerKm * km);
-        swLng = lon - (longitudePerKm * km);
-        neLat = lat + (latitudePerKm * km);
-        neLng = lon + (longitudePerKm * km);
-
-        for pokemon in Pokemon.get_active(swLat, swLng, neLat, neLng):
-            entry = {
-                'pokemonId': pokemon['pokemon_id'],
-                'name': pokemon['pokemon_name'],
-                'disappear_time': pokemon['disappear_time'],
-                'latitude': pokemon['latitude'],
-                'longitude': pokemon['longitude']
-            }
-            pokemon_list.append(entry)
 
         return jsonify({'pokemon': pokemon_list})
 
