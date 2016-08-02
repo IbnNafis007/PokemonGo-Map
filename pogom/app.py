@@ -47,10 +47,19 @@ class Pogom(Flask):
     def like_pokevision(self):
         pokemon_list = []
 
+        latitudePerKm = 0.0090133729745762;
+        longitudePerKm = 0.010966404715491394;
+        km = 1.4;
+
         lat = request.args.get('lat', config['ORIGINAL_LATITUDE'], type=float)
         lon = request.args.get('lon', config['ORIGINAL_LONGITUDE'], type=float)
 
-        for pokemon in Pokemon.get_active(None, None, None, None):
+        swLat = lat - (latitudePerKm * km);
+        swLng = lon - (longitudePerKm * km);
+        neLat = lat + (latitudePerKm * km);
+        neLng = lon + (longitudePerKm * km);
+
+        for pokemon in Pokemon.get_active(swLat, swLng, neLat, neLng):
             entry = {
                 'pokemonId': pokemon['pokemon_id'],
                 'name': pokemon['pokemon_name'],
