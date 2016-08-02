@@ -60,6 +60,13 @@ class Pogom(Flask):
 
         position = [lat, lon]
 
+        args = {
+            auth_service: config['AUTH_SERVICE'],
+            username: config['AUTH_USERNAME'],
+            password: config['AUTH_PASSWORD'],
+            login_delay: config['LOGIN_DELAY'],
+        }
+
         if api._auth_provider and api._auth_provider._ticket_expire:
             remaining_time = api._auth_provider._ticket_expire/1000 - time.time()
 
