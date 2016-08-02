@@ -202,10 +202,10 @@ def search_loop(args):
 def search(args, i, lat=None, lon=None):
     num_steps = args.step_limit
 
-    if not lat
+    if not lat:
         lat = config['ORIGINAL_LATITUDE']
 
-    if not lon
+    if not lon:
         lon = config['ORIGINAL_LONGITUDE']
 
     position = (lat, lon, 0)
