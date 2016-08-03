@@ -61,8 +61,8 @@ class Pogom(Flask):
                 'encounter_id': b64encode(str(p['encounter_id'])),
                 'spawnpoint_id': 'undefined',
                 'pokemon_id': p['pokemon_id'],
-                'latitude': g[0],
-                'longitude': g[1],
+                'latitude': g[1],
+                'longitude': g[0],
                 'disappear_time': p['disappear_time'],
             }
 
