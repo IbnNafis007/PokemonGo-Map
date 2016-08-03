@@ -65,7 +65,7 @@ class Pogom(Flask):
                 'disappear_time': p['disappear_time'],
             }
 
-        if pokemons
+        if pokemons:
             pokemons_upserted = len(pokemons)
             log.debug("Upserting {} pokemon".format(len(pokemons)))
             bulk_upsert(Pokemon, pokemons)
