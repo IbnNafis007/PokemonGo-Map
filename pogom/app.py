@@ -66,12 +66,14 @@ class Pogom(Flask):
                 'disappear_time': p['disappear_time'],
             }
 
+        result = 'ok'
         if pokemons:
             pokemons_upserted = len(pokemons)
-            log.debug("Upserting {} pokemon".format(len(pokemons)))
+            result = "Upserting {} pokemon".format(len(pokemons))
+            log.debug(result)
             bulk_upsert(Pokemon, pokemons)
 
-        return 'ok'
+        return result
 
     def like_pokevision(self):
         pokemon_list = []
