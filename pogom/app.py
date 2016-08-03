@@ -12,7 +12,7 @@ from s2sphere import *
 from pogom.utils import get_args
 
 from . import config
-from .models import Pokemon, Gym, Pokestop, ScannedLocation
+from .models import Pokemon, Gym, Pokestop, ScannedLocation, bulk_upsert
 
 log = logging.getLogger(__name__)
 compress = Compress()
@@ -30,6 +30,7 @@ class Pogom(Flask):
         self.route("/next_loc", methods=['POST', 'GET'])(self.next_loc)
         self.route("/mobile", methods=['GET'])(self.list_pokemon)
         self.route("/pokevision", methods=['GET'])(self.like_pokevision)
+        self.route("/import_geojson", methods=['POST'])(self.import_geojson)
 
     def fullmap(self):
         args = get_args()
@@ -44,6 +45,32 @@ class Pogom(Flask):
                                lang=config['LOCALE'],
                                is_fixed=display
                                )
+
+    def import_geojson(self):
+        geojson = self.get_json(force=True, silent=False, cache=True)
+        if 'features' not in geojson:
+            return 'bad parameters', 400
+
+        pokemons = {}
+
+        for feature in geojson['features']:
+            p = feature['properties']
+            g = feature['geometry']['coordinates']
+            pokemons[p['encounter_id']] = {
+                'encounter_id': b64encode(str(p['encounter_id'])),
+                'spawnpoint_id': 'undefined',
+                'pokemon_id': p['pokemon_id'],
+                'latitude': g[0],
+                'longitude': g[1],
+                'disappear_time': p['disappear_time'],
+            }
+
+        if pokemons
+            pokemons_upserted = len(pokemons)
+            log.debug("Upserting {} pokemon".format(len(pokemons)))
+            bulk_upsert(Pokemon, pokemons)
+
+        return 'ok'
 
     def like_pokevision(self):
         pokemon_list = []
