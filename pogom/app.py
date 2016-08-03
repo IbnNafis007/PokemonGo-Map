@@ -10,6 +10,7 @@ from flask_compress import Compress
 from datetime import datetime
 from s2sphere import *
 from pogom.utils import get_args
+from base64 import b64encode
 
 from . import config
 from .models import Pokemon, Gym, Pokestop, ScannedLocation, bulk_upsert
