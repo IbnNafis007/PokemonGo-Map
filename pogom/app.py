@@ -47,7 +47,7 @@ class Pogom(Flask):
                                )
 
     def import_geojson(self):
-        geojson = self.get_json(force=True, silent=False, cache=True)
+        geojson = request.get_json(force=True, silent=False, cache=True)
         if 'features' not in geojson:
             return 'bad parameters', 400
 
